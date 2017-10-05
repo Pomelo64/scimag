@@ -20,7 +20,9 @@ sciMag.data$Type <- NULL
 
 sciMag.data$Country <- as.factor(sciMag.data$Country)
 sciMag.data$region <- as.factor(sciMag.data$region)
+levels(sciMag.data$region) <- c("United States","Europe","Rest of the World","United Kingdom")
 sciMag.data$open.access <- as.factor(sciMag.data$open.access)
+levels(sciMag.data$open.access) <- c("Conventional","OpenAccess")
 sciMag.data$SJR <- as.numeric(gsub(pattern = ",",replacement = ".", x = sciMag.data$SJR ))
 sciMag.data$`Cites / Doc. (2years)` <- as.numeric(gsub(pattern = ",",replacement = ".", x = sciMag.data$`Cites / Doc. (2years)` ))
 #print(dim(sciMag.data))

@@ -29,12 +29,12 @@ shinyUI(
                                 checkboxGroupInput(inputId = "selected_access",
                                                    label = "Which access type(s)?",
                                                    choiceNames =  as.list(c("Conventional","OpenAccess")),
-                                                   choiceValues = as.list(c(0,1)), selected = c(0,1), inline = TRUE) , 
+                                                   choiceValues = as.list(c("Conventional","OpenAccess")), selected = c("Conventional","OpenAccess"), inline = TRUE) , 
                                 
                                 checkboxGroupInput(inputId = "selected_region",
                                                    label = "Which region(s)?",
                                                    choiceNames = as.list(c("United States","United Kingdom","Europe","Rest of the World")),
-                                                   choiceValues = as.list(c(1,4,2,3)), selected = c(1,2,3,4)) ,
+                                                   choiceValues = as.list(c("United States","United Kingdom","Europe","Rest of the World")), selected = c("United States","United Kingdom","Europe","Rest of the World")) ,
                                 
                                 checkboxGroupInput(inputId = "selected_variable",
                                                    label = "Which Variable(s) for dimension reduction Method?", 
