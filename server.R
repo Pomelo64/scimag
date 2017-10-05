@@ -120,9 +120,10 @@ shinyServer(function(input, output) {
                                         col="red" 
                         )
                 
-                if (input$point_shape != "None"){
+                # shape yes 
+                if (input$point_shape != "None"){ 
                         
-                        #print(input$color_variable)
+                        #shape yes - color yes 
                         if (input$color_variable != "None" ) {
                                 
                                 
@@ -157,7 +158,7 @@ shinyServer(function(input, output) {
                                                         aes(x = PC1*input$biplot_vector_size,y =  PC2*input$biplot_vector_size, label = vector_label ),
                                                         col="red" )
                                 
-                                
+                         # shape yes- color no        
                         } else {
                                 
                                 index <- match(input$point_shape,colnames(coordinates))
@@ -179,8 +180,75 @@ shinyServer(function(input, output) {
                                 
                         }
                         
-        
-                } # end of if for point shape 
+                        if (input$journal_label == "Yes") {
+                                dataset <- dataset()
+                                g <- g + 
+                                        geom_text_repel(data = coordinates,
+                                                        aes(x = PC1 , y = PC2),
+                                                        label = dataset$Title , 
+                                                        color = "orange", size = 1, alpha = 0.4 )
+                        }
+                        
+                # shape no 
+                } else {
+                        #shape no - color yes 
+                        if (input$color_variable != "None" ) {
+                                
+                                
+                                
+                                #shape_index <- match(input$point_shape,colnames(coordinates))
+                                #coordinates$shape <- coordinates[,shape_index]
+                                
+                                color_index <- match(input$color_variable, colnames(coordinates))
+                                coordinates$color <- coordinates[,color_index]
+                                
+                                
+                                g<- ggplot(data = coordinates) + 
+                                        geom_point(aes(x = PC1,
+                                                       y = PC2,
+                                                       
+                                                       color = color),
+                                                   size = input$point_size,
+                                                   alpha = input$point_alpha) + 
+                                        labs(title = input$dim_reduct_method, color = input$color_variable) +
+                                        
+                                        geom_segment(data=vectors, 
+                                                     aes(PC1*input$biplot_vector_size, PC2*input$biplot_vector_size, xend=0, yend=0), 
+                                                     col="red" ) + 
+                                        geom_text_repel(data=vectors ,
+                                                        aes(x = PC1*input$biplot_vector_size,y =  PC2*input$biplot_vector_size, label = vector_label ),
+                                                        col="red" )
+                                
+                                # shape no- color no        
+                        } else {
+                                
+                                #index <- match(input$point_shape,colnames(coordinates))
+                                #coordinates$shape <- coordinates[,index]
+                                
+                                g<- ggplot(data = coordinates) + 
+                                        geom_point(aes(x = PC1,
+                                                       y = PC2),
+                                                   size = input$point_size,
+                                                   alpha = input$point_alpha) + 
+                                        
+                                        geom_segment(data=vectors, 
+                                                     aes(PC1*input$biplot_vector_size, PC2*input$biplot_vector_size, xend=0, yend=0), 
+                                                     col="red" ) + 
+                                        geom_text_repel(data=vectors ,
+                                                        aes(x = PC1*input$biplot_vector_size,y =  PC2*input$biplot_vector_size, label = vector_label ),
+                                                        col="red" )
+                                
+                        }
+                        
+                        if (input$journal_label == "Yes") {
+                                dataset <- dataset()
+                                g <- g + 
+                                        geom_text_repel(data = coordinates,
+                                                        aes(x = PC1 , y = PC2),
+                                                        label = dataset$Title , 
+                                                        color = "orange", size = 1, alpha = 0.4 )
+                        }
+                }
                 
                 
                 
@@ -206,7 +274,7 @@ shinyServer(function(input, output) {
                 stress <- mds_model$stress
                 
                 coordinates <- dataset() %>% 
-                        select(c(Title,Country,open.access,region)) %>% 
+                        #select(c(Title,Country,open.access,region)) %>% 
                         cbind(mds_model$conf) 
       
         })
@@ -216,12 +284,120 @@ shinyServer(function(input, output) {
 #------- MDS plot function
         
         mds_plot_func <- reactive({
-                mds_data <- scimag_mds()
                 
-                ggplot(data = mds_data) +
-                        geom_point(aes(D1,D2),
-                                   alpha = input$point_alpha
-                                   ) 
+                mds_dataset <- scimag_mds()
+             
+                
+                g<- ggplot(data = mds_dataset) + 
+                        geom_point(aes(x = D1,
+                                       y = D2),
+                                   size = input$point_size,
+                                   alpha = input$point_alpha) 
+                
+                
+                if (input$point_shape != "None"){ #yes shape 
+
+                        if (input$color_variable != "None" ) { #yes shape - yes color
+                                
+                                
+                                
+                                shape_index <- match(input$point_shape,colnames(mds_dataset))
+                                mds_dataset$shape <- mds_dataset[,shape_index]
+                                
+                                color_index <- match(input$color_variable, colnames(mds_dataset))
+
+                                mds_dataset$color <- mds_dataset[,color_index]
+                                
+                                
+                                g<- ggplot(data = mds_dataset) + 
+                                        geom_point(aes(x = D1,
+                                                       y = D2,
+                                                       shape = shape,
+                                                       color = color),
+                                                   size = input$point_size,
+                                                   alpha = input$point_alpha) + 
+                                        labs(title = input$dim_reduct_method, color = input$color_variable) 
+                                        
+                                        
+                                
+                                
+                        } else { #yes shape - no color
+                                
+                                index <- match(input$point_shape,colnames(mds_dataset))
+                                mds_dataset$shape <- mds_dataset[,index]
+                                
+                                g<- ggplot(data = mds_dataset) + 
+                                        geom_point(aes(x = D1,
+                                                       y = D2,
+                                                       shape = shape),
+                                                   size = input$point_size,
+                                                   alpha = input$point_alpha)
+                                
+                        }
+                        
+                        if (input$journal_label == "Yes") {
+                                dataset <- dataset()
+                                g <- g + 
+                                        geom_text_repel(data = mds_dataset,
+                                                        aes(x = D1 , y = D2),
+                                                        label = dataset$Title , 
+                                                        color = "orange", size = 1, alpha = 0.4 )
+                        }
+                        
+                        
+                } else { #no shape 
+                        
+                        if (input$color_variable != "None" ) { #no shape - yes color
+                                
+                                
+                                
+                                #shape_index <- match(input$point_shape,colnames(mds_dataset))
+                                #mds_dataset$shape <- mds_dataset[,shape_index]
+                                
+                                color_index <- match(input$color_variable, colnames(mds_dataset))
+                                
+                                mds_dataset$color <- mds_dataset[,color_index]
+                                
+                                
+                                g<- ggplot(data = mds_dataset) + 
+                                        geom_point(aes(x = D1,
+                                                       y = D2,
+                                                       color = color),
+                                                   size = input$point_size,
+                                                   alpha = input$point_alpha) + 
+                                        labs(title = input$dim_reduct_method, color = input$color_variable) 
+                                
+                                
+                                
+                                
+                        } else { #no shape no color
+                                
+                                #index <- match(input$point_shape,colnames(mds_dataset))
+                                #mds_dataset$shape <- mds_dataset[,index]
+                                
+                                g<- ggplot(data = mds_dataset) + 
+                                        geom_point(aes(x = D1,
+                                                       y = D2
+                                                       ),
+                                                   size = input$point_size,
+                                                   alpha = input$point_alpha)
+                                
+                        }
+                        
+                        if (input$journal_label == "Yes") {
+                                dataset <- dataset()
+                                g <- g + 
+                                        geom_text_repel(data = mds_dataset,
+                                                        aes(x = D1 , y = D2),
+                                                        label = dataset$Title , 
+                                                        color = "orange", size = 1, alpha = 0.4 )
+                        }
+                        
+                }
+                
+                return(g)
+                
+                
         })
         
 # -------- plot generation  

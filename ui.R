@@ -48,6 +48,8 @@ shinyUI(
                                                 ),
                                 uiOutput("color_variable_select"),
                                 
+                                radioButtons("journal_label",label = "Show the label of points?", choices = list("Yes","No"),selected = "No",inline = TRUE),
+                                
                                 sliderInput("biplot_vector_size", label = "Biplot Vector Size", min = 1 , max = 10 , value = 2),
                                 sliderInput("point_size", label = "Point Size", min = 1 , max = 10 , value = 2),
                                 
