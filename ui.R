@@ -51,7 +51,10 @@ shinyUI(
                                             choices = c("None","open.access","region","SJR Quartile")
                                                 ),
                                 
+                                
                                 sliderInput("biplot_vector_size", label = "Biplot Vector Size", min = 1 , max = 10 , value = 2),
+                                sliderInput("point_size", label = "Point Size", min = 1 , max = 10 , value = 2),
+                                
                                 sliderInput("point_alpha", label = "Point Opacity", min = 0.1 , max = 1 , value = 0.5),
                                 
                                 

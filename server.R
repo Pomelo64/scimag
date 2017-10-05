@@ -12,6 +12,8 @@ library(ggplot2)
 library(smacof)
 library(ggrepel)
 
+# bug ---> shape legend
+
 sciMag.data <- read_csv(file = "./data/scimag.csv" )
 sciMag.data$X1 <- NULL
 sciMag.data$Type <- NULL
@@ -91,6 +93,50 @@ shinyServer(function(input, output) {
                 
                 list(coordinates,vectors,importance)
         })
+        
+#------- PCA Biplot function
+        
+        biplot_func <- reactive({
+                coordinates<- biplot_list()[[1]]
+                vectors <- biplot_list()[[2]]
+                
+                
+                
+                g<- ggplot(data = coordinates) + 
+                        geom_point(aes(x = PC1,
+                                       y = PC2),
+                                   size = input$point_size,
+                                   alpha = input$point_alpha) + 
+                        geom_segment(data=vectors, 
+                                     aes(PC1*input$biplot_vector_size, PC2*input$biplot_vector_size, xend=0, yend=0), 
+                                     col="red") + 
+                        geom_text_repel(data=vectors ,
+                                        aes(x = PC1*input$biplot_vector_size,y =  PC2*input$biplot_vector_size, label = vector_label ),
+                                        col="red" 
+                        )
+                
+                if (input$point_shape != "None"){
+                        index <- match(input$point_shape,colnames(coordinates))
+                        coordinates$shape <- coordinates[,index]
+                        
+                        g<- ggplot(data = coordinates) + 
+                                geom_point(aes(x = PC1,
+                                               y = PC2,
+                                               shape = shape),
+                                           size = input$point_size,
+                                           alpha = input$point_alpha) + 
+                                
+                                geom_segment(data=vectors, 
+                                             aes(PC1*input$biplot_vector_size, PC2*input$biplot_vector_size, xend=0, yend=0), 
+                                             col="red" ) + 
+                                geom_text_repel(data=vectors ,
+                                                aes(x = PC1*input$biplot_vector_size,y =  PC2*input$biplot_vector_size, label = vector_label ),
+                                                col="red" )
+        
+                } # end of if for point shape 
+                
+                return(g)
+        })
 
 # ------- MDS coordinates dataset        
         # for MDS version of the plot 
@@ -114,51 +160,7 @@ shinyServer(function(input, output) {
       
         })
 
-#------- PCA Biplot function
-        
-        biplot_func <- reactive({
-                coordinates<- biplot_list()[[1]]
-                vectors <- biplot_list()[[2]]
-                
-        
-                
-                g<- ggplot(data = coordinates) + 
-                        geom_point(aes(x = PC1,
-                                       y = PC2), 
-                                   
-                                   alpha = input$point_alpha) + 
-                        geom_segment(data=vectors, 
-                                     aes(PC1*input$biplot_vector_size, PC2*input$biplot_vector_size, xend=0, yend=0), 
-                                     col="red" ) + 
-                        geom_text_repel(data=vectors ,
-                                        aes(x = PC1*input$biplot_vector_size,y =  PC2*input$biplot_vector_size, label = vector_label ),
-                                        col="red" 
-                                        )
-                
-                if (input$point_shape != "None"){
-                        index <- match(input$point_shape,colnames(coordinates))
-                        coordinates$shape <- coordinates[,index]
-                        
-                        g<- ggplot(data = coordinates) + 
-                                geom_point(aes(x = PC1,
-                                               y = PC2,
-                                               shape = shape), 
-                                           alpha = input$point_alpha) + 
-                                
-                                geom_segment(data=vectors, 
-                                             aes(PC1*input$biplot_vector_size, PC2*input$biplot_vector_size, xend=0, yend=0), 
-                                             col="red" ) + 
-                                geom_text_repel(data=vectors ,
-                                                aes(x = PC1*input$biplot_vector_size,y =  PC2*input$biplot_vector_size, label = vector_label ),
-                                                col="red" )
-                                
-                                        
-                        
-                        
-                }
-                
-                return(g)
-        })
+
         
 #------- MDS plot function
         
