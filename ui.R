@@ -38,8 +38,9 @@ shinyUI(
                                                    choiceValues = as.list(c("SJR","H index","Total Docs. (2016)", "Total Docs. (3years)","Total Refs.","Total Cites (3years)","Citable Docs. (3years)","Cites / Doc. (2years)","Ref. / Doc." )),
                                                    selected = as.list(c("SJR","H index","Total Docs. (2016)", "Total Docs. (3years)","Total Refs.","Total Cites (3years)","Citable Docs. (3years)","Cites / Doc. (2years)","Ref. / Doc." ))
                                                    ),
+                                actionButton("plot_button","Plot"),
                                 tags$hr(),
-                                
+                                helpText("Map Manipulation"),
                                 radioButtons("dim_reduct_method",label = "Dimension Reduction Method", choices = list("PCA","MDS"),inline = TRUE),
                                 
                                 selectInput(inputId = "point_shape",
@@ -50,21 +51,12 @@ shinyUI(
                                 
                                 radioButtons("journal_label",label = "Show the label of points?", choices = list("Yes","No"),selected = "No",inline = TRUE),
                                 
-                                sliderInput("biplot_vector_size", label = "Biplot Vector Size", min = 1 , max = 10 , value = 2),
-                                sliderInput("point_size", label = "Point Size", min = 1 , max = 10 , value = 2),
+                                sliderInput("biplot_vector_size", label = "Biplot Vector Size", min = 1 , max = 10 , value = 6),
+                                sliderInput("point_size", label = "Point Size", min = 1 , max = 10 , value = 7),
                                 
-                                sliderInput("point_alpha", label = "Point Opacity", min = 0.1 , max = 1 , value = 0.5),
+                                sliderInput("point_alpha", label = "Point Opacity", min = 0.1 , max = 1 , value = 0.7)
                                 
-                                
-                                numericInput("num_of_inputs", "Number of Input factors", 1), 
-                                
-                                
-                                
-                                actionButton("plot_button","Plot") 
-                                
-                                
-                                
-                                
+               
                         ),
                         
                         
@@ -79,7 +71,7 @@ shinyUI(
                                                                     id = "plot_brush",
                                                                     resetOnNew = TRUE
                                                             )), 
-                                                 
+                                                 downloadButton('download_plot', 'Download the Plot'),
                                                  tags$h3("PCA data table"),
                                                  DT::dataTableOutput("brush_info_pca", width = "800px"),
                                                  tags$h3("MDS data table"),
@@ -89,7 +81,7 @@ shinyUI(
                                                  plotOutput("correlation_plot", width = "800px",height = "600px")
                                                  ),
                                         tabPanel("Data View",
-                                                 tableOutput("table")),
+                                                 DT::dataTableOutput("table")),
                                         tabPanel("Help",
                                                  "kos help"
                                                  

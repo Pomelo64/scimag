@@ -65,9 +65,12 @@ shinyServer(function(input, output) {
 # ------ Table for data view
   
         # for printing the filtered sciMag.data in the sciMag.dataView tabset 
-        output$table <- renderTable({
-                dataset()
+        output$table <- DT::renderDataTable({
+                data<- dataset()
+                datatable(data)
         })
+        
+        
         
 # ------- biplot dataset        
         biplot_list <- reactive({
@@ -182,7 +185,7 @@ shinyServer(function(input, output) {
                                         geom_text_repel(data = coordinates,
                                                         aes(x = PC1 , y = PC2),
                                                         label = dataset$Title , 
-                                                        color = "orange", size = 1, alpha = 0.4 )
+                                                        color = "orange", alpha = 0.4 )
                         }
                         
                 # shape no 
@@ -240,14 +243,18 @@ shinyServer(function(input, output) {
                                 dataset <- dataset()
                                 g <- g + 
                                         geom_text_repel(data = coordinates,
-                                                        aes(x = PC1 , y = PC2),
-                                                        label = dataset$Title , 
-                                                        color = "orange", size = 1, alpha = 0.4 )
+                                                        aes(x = PC1 , y = PC2,label = dataset$Title ),
+                                                        color = "orange", alpha = 0.8 )
                         }
                 }
             
                 g <- g + 
-                        coord_cartesian(xlim = pca_brush_ranges$x, ylim = pca_brush_ranges$y, expand = TRUE)
+                        coord_cartesian(xlim = pca_brush_ranges$x,
+                                        ylim = pca_brush_ranges$y,
+                                        expand = TRUE) +
+                         theme_linedraw(base_size = 16)
+               
+                
                 
                 return(g)
                 
@@ -420,7 +427,10 @@ shinyServer(function(input, output) {
                 }
                 
                 g <- g   + 
-                        coord_cartesian(xlim = mds_brush_ranges$x, ylim = mds_brush_ranges$y, expand = TRUE)
+                        coord_cartesian(xlim = mds_brush_ranges$x,
+                                        ylim = mds_brush_ranges$y,
+                                        expand = TRUE) +
+                         theme_linedraw()
                 
                 return(g)
                 
@@ -443,14 +453,7 @@ shinyServer(function(input, output) {
         #for DT output, it uses brush data
         output$brush_info <- DT::renderDataTable({
                 data <- scimag_mds()
-                
-                #cols<-match(input$selected_variable,colnames(data))
-        
-                #data <- cbind(
-                #              data[,c("Title","Country","open.access","region","SJR Quartile")],
-                #              data[,cols],
-                #              data[,c("D1","D2")])
-                
+               
                 res <- brushedPoints(data, input$plot_brush)
                 datatable(res)
         })
@@ -485,5 +488,18 @@ shinyServer(function(input, output) {
                 chart.Correlation(corr_data, histogram=TRUE, pch=19) 
         })
 
+# ----- download graph 
+        
+        output$download_plot <- downloadHandler(
+                filename = "SciMap_plot.png",
+                content = function(file) {
+                        g<- switch(EXPR = input$dim_reduct_method,
+                               "PCA" = biplot_func(),
+                               "MDS" = mds_plot_func()
+                                )
+                        ggsave(file, g ,device = "png", dpi = 450)
+                        
+                }
+        )
 
 }) # end of shiny()
