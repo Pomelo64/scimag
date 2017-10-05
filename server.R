@@ -16,7 +16,7 @@ data$Type <- NULL
 data$Country <- as.factor(data$Country)
 data$region <- as.factor(data$region)
 data$open.access <- as.factor(data$open.access)
-data$SJR <- as.numeric(gsub(pattern = ",",replacement = ".", x = data$SJR ),)
+data$SJR <- as.numeric(gsub(pattern = ",",replacement = ".", x = data$SJR ))
 
 
 shinyServer(function(input, output) {
