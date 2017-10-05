@@ -21,7 +21,7 @@ sciMag.data$open.access <- as.factor(sciMag.data$open.access)
 sciMag.data$SJR <- as.numeric(gsub(pattern = ",",replacement = ".", x = sciMag.data$SJR ))
 sciMag.data$`Cites / Doc. (2years)` <- as.numeric(gsub(pattern = ",",replacement = ".", x = sciMag.data$`Cites / Doc. (2years)` ))
 #print(dim(sciMag.data))
-print(colnames(sciMag.data))
+#print(colnames(sciMag.data))
 
 shinyServer(function(input, output) {
         
@@ -29,6 +29,7 @@ shinyServer(function(input, output) {
         dataset <- eventReactive(input$plot_button,{
                 
                 #print((input$selected_quartile))
+                print(head(sciMag.data[,input$selected_variable]))
                 
                 sciMag.data %>% 
                         select(-c(Categories,Issn, Rank)) %>% 
