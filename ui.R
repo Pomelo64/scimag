@@ -78,7 +78,12 @@ shinyUI(
                                                             brush = brushOpts(
                                                                     id = "plot_brush",
                                                                     resetOnNew = TRUE
-                                                            ))
+                                                            )), 
+                                                 
+                                                 tags$h3("PCA data table"),
+                                                 DT::dataTableOutput("brush_info_pca", width = "800px"),
+                                                 tags$h3("MDS data table"),
+                                                 DT::dataTableOutput("brush_info", width = "800px")
                                         ),
                                         tabPanel("Correlations", 
                                                  plotOutput("correlation_plot", width = "800px",height = "600px")

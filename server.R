@@ -12,6 +12,7 @@ library(ggplot2)
 library(smacof)
 library(ggrepel)
 library(PerformanceAnalytics)
+library(DT)
 
 # bug ---> shape legend  : done 
 
@@ -264,7 +265,21 @@ shinyServer(function(input, output) {
                 }
         })
         
-
+        # for the DT table. it uses brush info
+        output$brush_info_pca <- DT::renderDataTable({
+                        
+                        data <- biplot_list()[[1]]
+                        
+                        res <- brushedPoints(data,input$plot_brush)
+                        datatable(res)
+                        
+                })
+                
+       
+                
+                
+        
+## MDS Part
 # ------- MDS coordinates dataset        
         # for MDS version of the plot 
         scimag_mds <- reactive({
@@ -412,6 +427,7 @@ shinyServer(function(input, output) {
                 
         })
         
+        #for brushing and zooming as well as DT
         observeEvent(input$plot_dblclick, {
                 brush <- input$plot_brush
                 if (!is.null(brush)) {
@@ -422,6 +438,21 @@ shinyServer(function(input, output) {
                         mds_brush_ranges$x <- NULL
                         mds_brush_ranges$y <- NULL
                 }
+        })
+        
+        #for DT output, it uses brush data
+        output$brush_info <- DT::renderDataTable({
+                data <- scimag_mds()
+                
+                #cols<-match(input$selected_variable,colnames(data))
+        
+                #data <- cbind(
+                #              data[,c("Title","Country","open.access","region","SJR Quartile")],
+                #              data[,cols],
+                #              data[,c("D1","D2")])
+                
+                res <- brushedPoints(data, input$plot_brush)
+                datatable(res)
         })
         
 # -------- plot generation  
