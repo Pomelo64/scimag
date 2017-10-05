@@ -35,38 +35,15 @@ shinyUI(
                                                    label = "Which region(s)?",
                                                    choiceNames = as.list(c("United States","United Kingdom","Europe","Rest of the World")),
                                                    choiceValues = as.list(c(1,4,2,3)), selected = c(1,2,3,4)),
+                                tags$hr(),
+                                
+                                radioButtons("dim_reduct_method",label = "Dimension Reduction Method", choices = list("PCA","MDS")),
                                 
                                 numericInput("num_of_inputs", "Number of Input factors", 1), 
                                 
-                                checkboxInput('header', 'Header', TRUE),
-                                checkboxInput('dmu_labels', 'DMU Labels', FALSE),
-                                
-                                radioButtons('sep', 'Separator',
-                                             c(Comma=',',
-                                               Semicolon=';',
-                                               Tab='\t'),
-                                             ','),
-                                
-                                radioButtons('dec', 'Decimal Symbol',
-                                             c(Comma=',',
-                                               Dot='.'),
-                                             '.'),
-                                
-                                radioButtons('quote', 'Quote',
-                                             c(None='',
-                                               'Double Quote'='"',
-                                               'Single Quote'="'"),
-                                             '"'),
-                                tags$hr(),
                                 
                                 
-                                
-                                helpText("Note: When the data shown in the right panel is what ",
-                                         "it is supposed to be, each variable in one column and",
-                                         "inputs are separated correctly from outputs,",
-                                         "then press the submit button."),
-                                
-                                actionButton("submit_button","Submit") 
+                                actionButton("plot_button","Plot") 
                                 
                                 
                                 
@@ -78,7 +55,8 @@ shinyUI(
                                 
                                 tabsetPanel(
                                         tabPanel("Data View",
-                                                 "plot"
+                                                 
+                                                 plotOutput("sciMag_plot")
                                         ),
                                         tabPanel("Correlations", 
                                                  "corr"),
