@@ -21,33 +21,44 @@ sciMag.data$open.access <- as.factor(sciMag.data$open.access)
 sciMag.data$SJR <- as.numeric(gsub(pattern = ",",replacement = ".", x = sciMag.data$SJR ))
 sciMag.data$`Cites / Doc. (2years)` <- as.numeric(gsub(pattern = ",",replacement = ".", x = sciMag.data$`Cites / Doc. (2years)` ))
 #print(dim(sciMag.data))
-#print(colnames(sciMag.data))
+print(colnames(sciMag.data))
+print("-----")
 
 shinyServer(function(input, output) {
+
+# ------- Filtering the main dataset 
         
         #filtering the main sciMag.data
         dataset <- eventReactive(input$plot_button,{
                 
-                #print((input$selected_quartile))
-                print(head(sciMag.data[,input$selected_variable]))
+                # First remove unnecessary variables
+                sciMag.data<- sciMag.data %>% 
+                        select(-c(Categories,Issn, Rank)) 
                 
-                sciMag.data %>% 
-                        select(-c(Categories,Issn, Rank)) %>% 
+                #Here for using the selected_cols in select()
+                myCols <- input$selected_variable
+                selected_cols <- match(myCols,colnames(sciMag.data))
+                
+                #filtering the dataset
+                sciMag.data <- sciMag.data %>% 
                         filter(`SJR Quartile` %in% c(input$selected_quartile)) %>%
                         filter(open.access %in% input$selected_access) %>% 
-                        filter(region %in% input$selected_region)
+                        filter(region %in% input$selected_region) %>% 
+                        select(c(`SJR Quartile`,open.access,region,Title,Country,selected_cols))
+                       
      
         }
         )
         
-        
+# ------ Table for data view
+  
         # for printing the filtered sciMag.data in the sciMag.dataView tabset 
         output$table <- renderTable({
                 
                 dataset()
         })
         
-        
+# ------- biplot dataset        
         biplot_list <- reactive({
                
                 # keeping the numeric variables for PCA
@@ -76,7 +87,8 @@ shinyServer(function(input, output) {
                 
                 list(coordinates,vectors,importance)
         })
-        
+
+# ------- MDS coordinates dataset        
         # for MDS version of the plot 
         scimag_mds <- reactive({
                 
@@ -95,7 +107,7 @@ shinyServer(function(input, output) {
       
         })
         
-        
+# -------- plot generation         
         output$sciMag_plot <- renderPlot({
                 
                 coordinates<- biplot_list()[[1]]
