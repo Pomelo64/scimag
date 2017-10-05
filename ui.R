@@ -47,6 +47,8 @@ shinyUI(
                                 radioButtons("dim_reduct_method",label = "Dimension Reduction Method", choices = list("PCA","MDS")),
                                 
                                 sliderInput("biplot_vector_size", label = "Biplot Vector Size", min = 1 , max = 10 , value = 2),
+                                sliderInput("point_alpha", label = "Point Opacity", min = 0.1 , max = 1 , value = 0.5),
+                                
                                 
                                 numericInput("num_of_inputs", "Number of Input factors", 1), 
                                 

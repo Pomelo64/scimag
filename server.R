@@ -118,7 +118,8 @@ shinyServer(function(input, output) {
                 vectors <- biplot_list()[[2]]
                 
                 ggplot(data = coordinates) + 
-                        geom_point(aes(PC1,PC2)) + 
+                        geom_point(aes(PC1,PC2), 
+                                   alpha = input$point_alpha) + 
                         geom_segment(data=vectors, 
                                      aes(PC1*input$biplot_vector_size, PC2*input$biplot_vector_size, xend=0, yend=0), 
                                      col="red" ) + 
@@ -135,7 +136,9 @@ shinyServer(function(input, output) {
                 mds_data <- scimag_mds()
                 
                 ggplot(data = mds_data) +
-                        geom_point(aes(D1,D2)) 
+                        geom_point(aes(D1,D2),
+                                   alpha = input$point_alpha
+                                   ) 
         })
         
 # -------- plot generation  
