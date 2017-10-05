@@ -23,13 +23,13 @@ shinyUI(
                                 checkboxGroupInput(inputId = "selected_quartile",
                                                    label = "Which SJR Quartile(s)?",
                                                    choiceNames = as.list(c("Q1","Q2","Q3","Q4")), 
-                                                   choiceValues = as.list(c(1,2,3,4)),
-                                                   selected = c(1,2,3,4 )),
+                                                   choiceValues = as.list(c("Q1","Q2","Q3","Q4")),
+                                                   selected = c("Q1","Q2","Q3","Q4")),
                                 
                                 checkboxGroupInput(inputId = "selected_access",
                                                    label = "Which access type(s)?",
                                                    choiceNames =  as.list(c("Conventional","OpenAccess")),
-                                                   choiceValues = as.list(c(1,2)), selected = c(1,2)) , 
+                                                   choiceValues = as.list(c(0,1)), selected = c(0,1)) , 
                                 
                                 checkboxGroupInput(inputId = "selected_region",
                                                    label = "Which region(s)?",

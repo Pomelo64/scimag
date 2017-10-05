@@ -9,21 +9,38 @@ library(shiny)
 library(dplyr)
 library(readr)
 
-data <- read_csv(file = "./Data/scimag.csv" )
-data$X1 <- NULL
-data$Type <- NULL
+sciMag.data <- read_csv(file = "./data/scimag.csv" )
+sciMag.data$X1 <- NULL
+sciMag.data$Type <- NULL
 
-data$Country <- as.factor(data$Country)
-data$region <- as.factor(data$region)
-data$open.access <- as.factor(data$open.access)
-data$SJR <- as.numeric(gsub(pattern = ",",replacement = ".", x = data$SJR ))
-
+sciMag.data$Country <- as.factor(sciMag.data$Country)
+sciMag.data$region <- as.factor(sciMag.data$region)
+sciMag.data$open.access <- as.factor(sciMag.data$open.access)
+sciMag.data$SJR <- as.numeric(gsub(pattern = ",",replacement = ".", x = sciMag.data$SJR ))
+#print(dim(sciMag.data))
+print(colnames(sciMag.data))
 
 shinyServer(function(input, output) {
         
+        #filtering the main sciMag.data
+        dataset <- reactive({
+                
+                #print((input$selected_quartile))
+                
+                sciMag.data %>% 
+                        select(-c(Categories,Issn, Rank)) %>% 
+                        filter(`SJR Quartile` %in% c(input$selected_quartile)) %>%
+                        filter(open.access %in% input$selected_access) %>% 
+                        filter(region %in% input$selected_region)
+     
+        }
+        )
         
+        
+        # for printing the filtered sciMag.data in the sciMag.dataView tabset 
         output$table <- renderTable({
-                data
+                #print(dim(dataset()))
+                dataset()
         })
         
 })
