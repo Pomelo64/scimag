@@ -101,19 +101,41 @@ shinyServer(function(input, output) {
                 
                 mds_model <- smacofSym(delta = mds_dist, ndim = 2 , type = "ratio")
                 
+                #the badnes-of-fit
+                stress <- mds_model$stress
+                
                 coordinates <- dataset() %>% 
                         select(c(Title,Country,open.access,region)) %>% 
                         cbind(mds_model$conf) 
       
         })
+
+#------- PCA Biplot function
         
-# -------- plot generation         
-        output$sciMag_plot <- renderPlot({
-                
+        biplot_func <- reactive({
                 coordinates<- biplot_list()[[1]]
                 vectors <- biplot_list()[[2]]
                 
                 ggplot(data = coordinates) + geom_point(aes(PC1,PC2))
+                
         })
+        
+#------- MDS plot function
+        mds_plot_func <- reactive({
+                mds_data <- scimag_mds()
+                
+                ggplot(data = mds_data) +
+                        geom_point(aes(D1,D2))
+        })
+        
+# -------- plot generation         
+        output$sciMag_plot <- renderPlot({
+                
+                switch(EXPR = input$dim_reduct_method,
+                       "PCA" = biplot_func(),
+                       "MDS" = mds_plot_func()
+                       )
+                
+        }) 
         
 })
