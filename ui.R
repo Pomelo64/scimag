@@ -40,11 +40,13 @@ shinyUI(
                                                    label = "Which Variable(s) for dimension reduction Method?", 
                                                    choiceNames = as.list(c("SJR","H index","Total Docs. (2016)", "Total Docs. (3years)","Total Refs.","Total Cites (3years)","Citable Docs. (3years)","Cites / Doc. (2years)","Ref. / Doc." )),
                                                    choiceValues = as.list(c("SJR","H index","Total Docs. (2016)", "Total Docs. (3years)","Total Refs.","Total Cites (3years)","Citable Docs. (3years)","Cites / Doc. (2years)","Ref. / Doc." )),
-                                                   selected = as.list(c("SJR","H index","Total Docs. (2016)", "Total Docs. (3years)","Total Refs.","Total Cites (3years)","Citable Docs. (3years)","Cites / Doc. (2years)","Ref. / Doc." )),
+                                                   selected = as.list(c("SJR","H index","Total Docs. (2016)", "Total Docs. (3years)","Total Refs.","Total Cites (3years)","Citable Docs. (3years)","Cites / Doc. (2years)","Ref. / Doc." ))
                                                    ),
                                 tags$hr(),
                                 
                                 radioButtons("dim_reduct_method",label = "Dimension Reduction Method", choices = list("PCA","MDS")),
+                                
+                                sliderInput("biplot_vector_size", label = "Biplot Vector Size", min = 1 , max = 10 , value = 2),
                                 
                                 numericInput("num_of_inputs", "Number of Input factors", 1), 
                                 

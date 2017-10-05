@@ -10,6 +10,7 @@ library(dplyr)
 library(readr)
 library(ggplot2)
 library(smacof)
+library(ggrepel)
 
 sciMag.data <- read_csv(file = "./data/scimag.csv" )
 sciMag.data$X1 <- NULL
@@ -83,7 +84,7 @@ shinyServer(function(input, output) {
                 
 
                 #vectors df for biplot
-                vectors <- data.frame(Variables = (rownames(scimag_pca$rotation)), scimag_pca$rotation[, 1:2])
+                vectors <- data.frame( vector_label = rownames(scimag_pca$rotation), scimag_pca$rotation[, 1:2])
                 
                 list(coordinates,vectors,importance)
         })
@@ -116,19 +117,29 @@ shinyServer(function(input, output) {
                 coordinates<- biplot_list()[[1]]
                 vectors <- biplot_list()[[2]]
                 
-                ggplot(data = coordinates) + geom_point(aes(PC1,PC2))
+                ggplot(data = coordinates) + 
+                        geom_point(aes(PC1,PC2)) + 
+                        geom_segment(data=vectors, 
+                                     aes(PC1*input$biplot_vector_size, PC2*input$biplot_vector_size, xend=0, yend=0), 
+                                     col="red" ) + 
+                        geom_text_repel(data=vectors ,
+                                        aes(x = PC1*input$biplot_vector_size,y =  PC2*input$biplot_vector_size, label = vector_label ),
+                                        col="red" 
+                                        )
                 
         })
         
 #------- MDS plot function
+        
         mds_plot_func <- reactive({
                 mds_data <- scimag_mds()
                 
                 ggplot(data = mds_data) +
-                        geom_point(aes(D1,D2))
+                        geom_point(aes(D1,D2)) 
         })
         
-# -------- plot generation         
+# -------- plot generation  
+        
         output$sciMag_plot <- renderPlot({
                 
                 switch(EXPR = input$dim_reduct_method,
