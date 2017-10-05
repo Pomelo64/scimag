@@ -12,7 +12,7 @@ library(ggplot2)
 library(smacof)
 library(ggrepel)
 
-# bug ---> shape legend
+# bug ---> shape legend  : done 
 
 sciMag.data <- read_csv(file = "./data/scimag.csv" )
 sciMag.data$X1 <- NULL
@@ -25,7 +25,8 @@ sciMag.data$open.access <- as.factor(sciMag.data$open.access)
 levels(sciMag.data$open.access) <- c("Conventional","OpenAccess")
 sciMag.data$SJR <- as.numeric(gsub(pattern = ",",replacement = ".", x = sciMag.data$SJR ))
 sciMag.data$`Cites / Doc. (2years)` <- as.numeric(gsub(pattern = ",",replacement = ".", x = sciMag.data$`Cites / Doc. (2years)` ))
-#print(dim(sciMag.data))
+
+
 print(colnames(sciMag.data))
 print("-----")
 
@@ -86,7 +87,9 @@ shinyServer(function(input, output) {
                 
                 # coordinates df has non-numeric variables as well as PC1 and PC2
                 coordinates <- dataset() %>% 
-                        select(c(Title,Country,open.access,region,`SJR Quartile`)) %>% 
+                       
+                        #select(c(Title,Country,open.access,region,`SJR Quartile`)) %>% 
+                       
                         cbind(scimag_pca$x[,1:2]) 
                 
 
@@ -118,24 +121,70 @@ shinyServer(function(input, output) {
                         )
                 
                 if (input$point_shape != "None"){
-                        index <- match(input$point_shape,colnames(coordinates))
-                        coordinates$shape <- coordinates[,index]
                         
-                        g<- ggplot(data = coordinates) + 
-                                geom_point(aes(x = PC1,
-                                               y = PC2,
-                                               shape = shape),
-                                           size = input$point_size,
-                                           alpha = input$point_alpha) + 
+                        #print(input$color_variable)
+                        if (input$color_variable != "None" ) {
                                 
-                                geom_segment(data=vectors, 
-                                             aes(PC1*input$biplot_vector_size, PC2*input$biplot_vector_size, xend=0, yend=0), 
-                                             col="red" ) + 
-                                geom_text_repel(data=vectors ,
-                                                aes(x = PC1*input$biplot_vector_size,y =  PC2*input$biplot_vector_size, label = vector_label ),
-                                                col="red" )
+                                
+                                
+                                shape_index <- match(input$point_shape,colnames(coordinates))
+                                coordinates$shape <- coordinates[,shape_index]
+                                
+                                color_index <- match(input$color_variable, colnames(coordinates))
+                                #print("color index:")
+                                #print(color_index)
+                                #print("colnames of coordinates")
+                                #print(colnames(coordinates))
+                                #print("color variable")
+                                #print(input$color_variable)
+                                #print("-----")
+                                coordinates$color <- coordinates[,color_index]
+                                
+                                
+                                g<- ggplot(data = coordinates) + 
+                                        geom_point(aes(x = PC1,
+                                                       y = PC2,
+                                                       shape = shape,
+                                                       color = color),
+                                                   size = input$point_size,
+                                                   alpha = input$point_alpha) + 
+                                        labs(title = input$dim_reduct_method, color = input$color_variable) +
+                                        
+                                        geom_segment(data=vectors, 
+                                                     aes(PC1*input$biplot_vector_size, PC2*input$biplot_vector_size, xend=0, yend=0), 
+                                                     col="red" ) + 
+                                        geom_text_repel(data=vectors ,
+                                                        aes(x = PC1*input$biplot_vector_size,y =  PC2*input$biplot_vector_size, label = vector_label ),
+                                                        col="red" )
+                                
+                                
+                        } else {
+                                
+                                index <- match(input$point_shape,colnames(coordinates))
+                                coordinates$shape <- coordinates[,index]
+                                
+                                g<- ggplot(data = coordinates) + 
+                                        geom_point(aes(x = PC1,
+                                                       y = PC2,
+                                                       shape = shape),
+                                                   size = input$point_size,
+                                                   alpha = input$point_alpha) + 
+                                        
+                                        geom_segment(data=vectors, 
+                                                     aes(PC1*input$biplot_vector_size, PC2*input$biplot_vector_size, xend=0, yend=0), 
+                                                     col="red" ) + 
+                                        geom_text_repel(data=vectors ,
+                                                        aes(x = PC1*input$biplot_vector_size,y =  PC2*input$biplot_vector_size, label = vector_label ),
+                                                        col="red" )
+                                
+                        }
+                        
         
                 } # end of if for point shape 
+                
+                
+                
+                
                 
                 return(g)
         })
@@ -184,6 +233,14 @@ shinyServer(function(input, output) {
                        "MDS" = mds_plot_func()
                        )
                 
-        }) 
+        })
+        
+# ------ color UI 
+        output$color_variable_select <- renderUI({
+                selectInput(inputId = "color_variable",
+                            label = "Point Color reflects:",
+                            choices = c("None",input$selected_variable,"region","open.access","SJR Quartile")
+                )
+        })
         
 })

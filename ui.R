@@ -14,10 +14,6 @@ shinyUI(
                 
                 sidebarLayout(
                         sidebarPanel(
-                                helpText("Note:This is an interactive visualization applet on SciMag data"), 
-                                
-                                
-                                tags$hr(),
                                 helpText("Data Filtering"),
                                 # Checkbox with several selection for filtering the data
                                 checkboxGroupInput(inputId = "selected_quartile",
@@ -44,13 +40,13 @@ shinyUI(
                                                    ),
                                 tags$hr(),
                                 
-                                radioButtons("dim_reduct_method",label = "Dimension Reduction Method", choices = list("PCA","MDS")),
+                                radioButtons("dim_reduct_method",label = "Dimension Reduction Method", choices = list("PCA","MDS"),inline = TRUE),
                                 
                                 selectInput(inputId = "point_shape",
                                             label = "Point Shape reflects:",
                                             choices = c("None","open.access","region","SJR Quartile")
                                                 ),
-                                
+                                uiOutput("color_variable_select"),
                                 
                                 sliderInput("biplot_vector_size", label = "Biplot Vector Size", min = 1 , max = 10 , value = 2),
                                 sliderInput("point_size", label = "Point Size", min = 1 , max = 10 , value = 2),
