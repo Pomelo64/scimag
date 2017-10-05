@@ -73,10 +73,16 @@ shinyUI(
                                 tabsetPanel(
                                         tabPanel("Data View",
                                                  
-                                                 plotOutput("sciMag_plot")
+                                                 plotOutput("sciMag_plot",width = "800px",height = "600px",
+                                                            dblclick = "plot_dblclick",
+                                                            brush = brushOpts(
+                                                                    id = "plot_brush",
+                                                                    resetOnNew = TRUE
+                                                            ))
                                         ),
                                         tabPanel("Correlations", 
-                                                 "corr"),
+                                                 plotOutput("correlation_plot", width = "800px",height = "600px")
+                                                 ),
                                         tabPanel("Data View",
                                                  tableOutput("table")),
                                         tabPanel("Help",

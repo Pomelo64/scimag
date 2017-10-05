@@ -11,6 +11,7 @@ library(readr)
 library(ggplot2)
 library(smacof)
 library(ggrepel)
+library(PerformanceAnalytics)
 
 # bug ---> shape legend  : done 
 
@@ -101,13 +102,13 @@ shinyServer(function(input, output) {
         
 #------- PCA Biplot function
         
+        pca_brush_ranges <- reactiveValues(x = NULL, y = NULL)
+        
         biplot_func <- reactive({
                 coordinates<- biplot_list()[[1]]
                 vectors <- biplot_list()[[2]]
-                
-                
-                
-                g<- ggplot(data = coordinates) + 
+
+            g<- ggplot(data = coordinates) + 
                         geom_point(aes(x = PC1,
                                        y = PC2),
                                    size = input$point_size,
@@ -132,13 +133,7 @@ shinyServer(function(input, output) {
                                 coordinates$shape <- coordinates[,shape_index]
                                 
                                 color_index <- match(input$color_variable, colnames(coordinates))
-                                #print("color index:")
-                                #print(color_index)
-                                #print("colnames of coordinates")
-                                #print(colnames(coordinates))
-                                #print("color variable")
-                                #print(input$color_variable)
-                                #print("-----")
+
                                 coordinates$color <- coordinates[,color_index]
                                 
                                 
@@ -249,13 +244,26 @@ shinyServer(function(input, output) {
                                                         color = "orange", size = 1, alpha = 0.4 )
                         }
                 }
-                
-                
-                
-                
+            
+                g <- g + 
+                        coord_cartesian(xlim = pca_brush_ranges$x, ylim = pca_brush_ranges$y, expand = TRUE)
                 
                 return(g)
+                
         })
+        
+        observeEvent(input$plot_dblclick, {
+                brush <- input$plot_brush
+                if (!is.null(brush)) {
+                        pca_brush_ranges$x <- c(brush$xmin, brush$xmax)
+                        pca_brush_ranges$y <- c(brush$ymin, brush$ymax)
+                        
+                } else {
+                        pca_brush_ranges$x <- NULL
+                        pca_brush_ranges$y <- NULL
+                }
+        })
+        
 
 # ------- MDS coordinates dataset        
         # for MDS version of the plot 
@@ -274,14 +282,15 @@ shinyServer(function(input, output) {
                 stress <- mds_model$stress
                 
                 coordinates <- dataset() %>% 
-                        #select(c(Title,Country,open.access,region)) %>% 
                         cbind(mds_model$conf) 
       
         })
-
+        
+        
 
         
 #------- MDS plot function
+        mds_brush_ranges <- reactiveValues(x = NULL, y = NULL)
         
         mds_plot_func <- reactive({
                 
@@ -395,9 +404,24 @@ shinyServer(function(input, output) {
                         
                 }
                 
+                g <- g   + 
+                        coord_cartesian(xlim = mds_brush_ranges$x, ylim = mds_brush_ranges$y, expand = TRUE)
+                
                 return(g)
                 
                 
+        })
+        
+        observeEvent(input$plot_dblclick, {
+                brush <- input$plot_brush
+                if (!is.null(brush)) {
+                        mds_brush_ranges$x <- c(brush$xmin, brush$xmax)
+                        mds_brush_ranges$y <- c(brush$ymin, brush$ymax)
+                        
+                } else {
+                        mds_brush_ranges$x <- NULL
+                        mds_brush_ranges$y <- NULL
+                }
         })
         
 # -------- plot generation  
@@ -419,4 +443,16 @@ shinyServer(function(input, output) {
                 )
         })
         
-})
+
+
+# ------- Correlation 
+
+        output$correlation_plot <- renderPlot({
+                corr_data <- dataset() %>% 
+                        select(-c(Title,Country,open.access,region,`SJR Quartile`))
+                
+                chart.Correlation(corr_data, histogram=TRUE, pch=19) 
+        })
+
+
+}) # end of shiny()
