@@ -46,7 +46,11 @@ shinyServer(function(input, output) {
                         filter(open.access %in% input$selected_access) %>% 
                         filter(region %in% input$selected_region) %>% 
                         select(c(`SJR Quartile`,open.access,region,Title,Country,selected_cols))
-                       
+                 
+                
+                
+                
+                
      
         }
         )
@@ -55,7 +59,6 @@ shinyServer(function(input, output) {
   
         # for printing the filtered sciMag.data in the sciMag.dataView tabset 
         output$table <- renderTable({
-                
                 dataset()
         })
         
@@ -79,7 +82,7 @@ shinyServer(function(input, output) {
                 
                 # coordinates df has non-numeric variables as well as PC1 and PC2
                 coordinates <- dataset() %>% 
-                        select(c(Title,Country,open.access,region)) %>% 
+                        select(c(Title,Country,open.access,region,`SJR Quartile`)) %>% 
                         cbind(scimag_pca$x[,1:2]) 
                 
 
@@ -117,8 +120,12 @@ shinyServer(function(input, output) {
                 coordinates<- biplot_list()[[1]]
                 vectors <- biplot_list()[[2]]
                 
-                ggplot(data = coordinates) + 
-                        geom_point(aes(PC1,PC2), 
+        
+                
+                g<- ggplot(data = coordinates) + 
+                        geom_point(aes(x = PC1,
+                                       y = PC2), 
+                                   
                                    alpha = input$point_alpha) + 
                         geom_segment(data=vectors, 
                                      aes(PC1*input$biplot_vector_size, PC2*input$biplot_vector_size, xend=0, yend=0), 
@@ -128,6 +135,29 @@ shinyServer(function(input, output) {
                                         col="red" 
                                         )
                 
+                if (input$point_shape != "None"){
+                        index <- match(input$point_shape,colnames(coordinates))
+                        coordinates$shape <- coordinates[,index]
+                        
+                        g<- ggplot(data = coordinates) + 
+                                geom_point(aes(x = PC1,
+                                               y = PC2,
+                                               shape = shape), 
+                                           alpha = input$point_alpha) + 
+                                
+                                geom_segment(data=vectors, 
+                                             aes(PC1*input$biplot_vector_size, PC2*input$biplot_vector_size, xend=0, yend=0), 
+                                             col="red" ) + 
+                                geom_text_repel(data=vectors ,
+                                                aes(x = PC1*input$biplot_vector_size,y =  PC2*input$biplot_vector_size, label = vector_label ),
+                                                col="red" )
+                                
+                                        
+                        
+                        
+                }
+                
+                return(g)
         })
         
 #------- MDS plot function
