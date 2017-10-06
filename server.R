@@ -14,8 +14,8 @@ library(ggrepel)
 library(PerformanceAnalytics)
 library(DT)
 
-# bug ---> shape legend  : done 
-
+# for deploying on shinyapps.io
+#suppressWarnings(sciMag.data <- read_csv(file = "/srv/connect/apps/SciMagOR2016/scimag.csv" ))
 sciMag.data <- read_csv(file = "./data/scimag.csv" )
 sciMag.data$X1 <- NULL
 sciMag.data$Type <- NULL
@@ -29,8 +29,8 @@ sciMag.data$SJR <- as.numeric(gsub(pattern = ",",replacement = ".", x = sciMag.d
 sciMag.data$`Cites / Doc. (2years)` <- as.numeric(gsub(pattern = ",",replacement = ".", x = sciMag.data$`Cites / Doc. (2years)` ))
 
 
-print(colnames(sciMag.data))
-print("-----")
+#print(colnames(sciMag.data))
+#print("-----")
 
 shinyServer(function(input, output) {
 
