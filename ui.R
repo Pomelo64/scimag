@@ -12,8 +12,8 @@ shinyUI(
                 
                 titlePanel("SciMagViz Applet"),
                 
-                sidebarLayout(
-                        sidebarPanel(
+                fluidRow(
+                        column(2,wellPanel(
                                 helpText("Data Filtering"),
                                 # Checkbox with several selection for filtering the data
                                 checkboxGroupInput(inputId = "selected_quartile",
@@ -38,29 +38,14 @@ shinyUI(
                                                    choiceValues = as.list(c("SJR","H index","Total Docs. (2016)", "Total Docs. (3years)","Total Refs.","Total Cites (3years)","Citable Docs. (3years)","Cites / Doc. (2years)","Ref. / Doc." )),
                                                    selected = as.list(c("SJR","H index","Total Docs. (2016)", "Total Docs. (3years)","Total Refs.","Total Cites (3years)","Citable Docs. (3years)","Cites / Doc. (2years)","Ref. / Doc." ))
                                                    ),
-                                actionButton("plot_button","Plot"),
-                                tags$hr(),
-                                helpText("Map Manipulation"),
-                                radioButtons("dim_reduct_method",label = "Dimension Reduction Method", choices = list("PCA","MDS"),inline = TRUE),
+                                actionButton("plot_button","Plot")
                                 
-                                selectInput(inputId = "point_shape",
-                                            label = "Point Shape reflects:",
-                                            choices = c("None","open.access","region","SJR Quartile")
-                                                ),
-                                uiOutput("color_variable_select"),
                                 
-                                radioButtons("journal_label",label = "Show the label of points?", choices = list("Yes","No"),selected = "No",inline = TRUE),
-                                
-                                sliderInput("biplot_vector_size", label = "Biplot Vector Size", min = 1 , max = 10 , value = 6),
-                                sliderInput("point_size", label = "Point Size", min = 1 , max = 10 , value = 7),
-                                
-                                sliderInput("point_alpha", label = "Point Opacity", min = 0.1 , max = 1 , value = 0.7)
-                                
-               
+                        )
                         ),
                         
                         
-                        mainPanel(
+                        column(8,wellPanel(
                                 
                                 tabsetPanel(
                                         tabPanel("Data View",
@@ -89,7 +74,27 @@ shinyUI(
                                 )
                                 
                                 
-                        ) # End mainPanel
+                        )), # End mainPanel
+                        column(2,
+                               wellPanel(
+                                       
+                                       helpText("Map Manipulation"),
+                                       radioButtons("dim_reduct_method",label = "Dimension Reduction Method", choices = list("PCA","MDS"),inline = TRUE),
+                                       
+                                       selectInput(inputId = "point_shape",
+                                                   label = "Point Shape reflects:",
+                                                   choices = c("None","open.access","region","SJR Quartile")
+                                       ),
+                                       uiOutput("color_variable_select"),
+                                       
+                                       radioButtons("journal_label",label = "Show the label of points?", choices = list("Yes","No"),selected = "No",inline = TRUE),
+                                       
+                                       sliderInput("biplot_vector_size", label = "Biplot Vector Size", min = 1 , max = 10 , value = 6),
+                                       sliderInput("point_size", label = "Point Size", min = 1 , max = 10 , value = 7),
+                                       
+                                       sliderInput("point_alpha", label = "Point Opacity", min = 0.1 , max = 1 , value = 0.7)
+                               )
+                               )
                 ) # End sidebar layout
         ) # end fluidPage
 ) # end shiny
