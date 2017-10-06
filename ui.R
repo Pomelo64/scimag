@@ -10,7 +10,7 @@ library(shiny)
 shinyUI(
         fluidPage(
                 
-                titlePanel("Upload Facotrs Data"),
+                titlePanel("SciMagViz Applet"),
                 
                 sidebarLayout(
                         sidebarPanel(
@@ -80,10 +80,10 @@ shinyUI(
                                         tabPanel("Correlations", 
                                                  plotOutput("correlation_plot", width = "800px",height = "600px")
                                                  ),
-                                        tabPanel("Data View",
+                                        tabPanel("Dataset",
                                                  DT::dataTableOutput("table")),
                                         tabPanel("Help",
-                                                 "kos help"
+                                                 tags$iframe(src = "SciMagVizHelp.html", style="height:600px; width:100%")
                                                  
                                         )
                                 )
