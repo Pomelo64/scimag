@@ -524,5 +524,42 @@ shinyServer(function(input, output) {
                         
                 }
         )
+# ------ Category-Variable plot
+        category_variable_plot_func <- reactive({
+                category_plot_df <- sciMag.data %>%
+                        group_by(Categories) %>%
+                        summarize(mean(SJR),  mean(`H index`), mean(`Total Docs. (2016)`), mean(`Total Docs. (3years)`), mean(`Total Refs.`), mean(`Total Cites (3years)`), mean(`Citable Docs. (3years)`),mean(`Cites / Doc. (2years)`), mean(`Ref. / Doc.`) ) 
+                
+                category_plot_df <- data.frame(category_plot_df)
+                choices <- paste0("mean(`", c("SJR","H index","Total Docs. (2016)", "Total Docs. (3years)","Total Refs.","Total Cites (3years)","Citable Docs. (3years)","Cites / Doc. (2years)","Ref. / Doc." ), "`)")
+                colnames(category_plot_df) <- c("Categories", choices)
+                
+                var <- paste0("mean(`",input$category_variable,"`)")
+                
+                var_index <- match(var ,colnames(category_plot_df) )
+                
+                category_plot_df %>% data.frame() %>%
+                        ggplot(aes(x = reorder(Categories,category_plot_df[,var_index]), y = category_plot_df[,var_index])) +
+                        geom_bar(stat = "identity") +
+                        coord_flip() + 
+                        ylab(colnames(category_plot_df)[var_index]) + 
+                        xlab("Category")
+                
+        })
+        
+        output$category_variable_plot <- renderPlot({
+                category_variable_plot_func()
+     
+        })
+        
+        output$download_category_plot <- downloadHandler(
+                filename = "category_plot.png",
+                content = function(file) {
+                        
+                        ggsave(file, category_variable_plot_func() ,device = "png", dpi = 450)
+                        
+                }
+        )
+
 
 }) # end of shiny()

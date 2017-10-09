@@ -118,12 +118,7 @@ shinyUI(
                                                    choiceValues = as.list(c("SJR","H index","Total Docs. (2016)", "Total Docs. (3years)","Total Refs.","Total Cites (3years)","Citable Docs. (3years)","Cites / Doc. (2years)","Ref. / Doc." )),
                                                    selected = as.list(c("SJR","H index","Total Docs. (2016)", "Total Docs. (3years)","Total Refs.","Total Cites (3years)","Citable Docs. (3years)","Cites / Doc. (2years)","Ref. / Doc." ))
                                                    ),
-                                
-                                
-                                #selectInput(inputId = "category_selection", label = "Category Selection",
-                                #            choices = levels(sciMag.data$Categories) , multiple = TRUE, 
-                                #            selected = default_cats, size = 5, selectize = FALSE),
-                                
+                             
                                 actionButton("plot_button","Plot")
                                 
                                 
@@ -152,9 +147,12 @@ shinyUI(
                                                  plotOutput("correlation_plot", width = "800px",height = "600px")
                                                  ),
                                         tabPanel("Category-Frequency Plots",
-                                                 "plot would be here"),
+                                                 plotOutput("category_variable_plot", width = "800px",height = "600px"),
+                                                 downloadButton('download_category_plot', 'Download the Plot')
+                                                 ),
                                         tabPanel("Dataset",
-                                                 DT::dataTableOutput("table")),
+                                                 DT::dataTableOutput("table")
+                                                 ),
                                         tabPanel("Help",
                                                  tags$iframe(src = "SciMagVizHelp.html", style="height:600px; width:100%")
                                                  
@@ -180,7 +178,15 @@ shinyUI(
                                        sliderInput("biplot_vector_size", label = "Biplot Vector Size", min = 1 , max = 10 , value = 6),
                                        sliderInput("point_size", label = "Point Size", min = 1 , max = 10 , value = 7),
                                        
-                                       sliderInput("point_alpha", label = "Point Opacity", min = 0.1 , max = 1 , value = 0.7)
+                                       sliderInput("point_alpha", label = "Point Opacity", min = 0.1 , max = 1 , value = 0.7),
+                                       tags$br(),
+                                       radioButtons("category_variable",label = "Category plot on:",
+                                                    choices = as.list(c("SJR","H index","Total Docs. (2016)", "Total Docs. (3years)","Total Refs.","Total Cites (3years)","Citable Docs. (3years)","Cites / Doc. (2years)","Ref. / Doc." )),
+                                                    selected = "SJR",inline = FALSE, width = "100%")
+                                       
+                                       
+                                       
+                                       
                                )
                                )
                 ) # End sidebar layout
