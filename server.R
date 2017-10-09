@@ -28,9 +28,26 @@ levels(sciMag.data$open.access) <- c("Conventional","OpenAccess")
 sciMag.data$SJR <- as.numeric(gsub(pattern = ",",replacement = ".", x = sciMag.data$SJR ))
 sciMag.data$`Cites / Doc. (2years)` <- as.numeric(gsub(pattern = ",",replacement = ".", x = sciMag.data$`Cites / Doc. (2years)` ))
 
+# tidy data with categories 
+a<- strsplit(x= sciMag.data$Categories, "; ")
+names(a) <- sciMag.data$Title
 
-#print(colnames(sciMag.data))
-#print("-----")
+df <- data.frame(Title = names(unlist(a)), Categories = matrix(unlist(a), byrow=T),
+                 stringsAsFactors=FALSE)
+df$Title <- gsub(x = df$Title, pattern = "\\d" , replacement = "" )
+df$Categories <- gsub(x = df$Categories, pattern = "\\s\\(.\\d\\)" , replacement = "")
+
+sciMag.data$Categories <- NULL 
+
+sciMag.data<- merge(x = sciMag.data, y = df, by = "Title", all = TRUE)
+
+sciMag.data$Categories <- factor(tidy_scimag$Categories)
+sciMag.data$`SJR Quartile` <- factor(tidy_scimag$`SJR Quartile`)
+
+#selection of default categories for selectInput()
+default_cats<-tidy_scimag %>% filter(Title %in% c("Omega","European Journal of Operations Research", "Operations Research")) %>% select(Categories)
+default_cats <- as.vector(default_cats$Categories)
+
 
 shinyServer(function(input, output) {
 
@@ -40,15 +57,21 @@ shinyServer(function(input, output) {
         dataset <- eventReactive(input$plot_button,{
                 
                 # First remove unnecessary variables
-                sciMag.data<- sciMag.data %>% 
-                        select(-c(Categories,Issn, Rank)) 
+                sciMag.data.filtered<- sciMag.data %>% 
+                        select(-c(Issn, Rank)) 
                 
                 #Here for using the selected_cols in select()
                 myCols <- input$selected_variable
-                selected_cols <- match(myCols,colnames(sciMag.data))
+                selected_cols <- match(myCols,colnames(sciMag.data.filtered))
+                
+                #filtering dataset based on selected categories then removing duplicate rows
+                sciMag.data.filtered <- sciMag.data.filtered %>% 
+                        filter(Categories %in% input$selected_categories) %>% 
+                        select(-Categories) %>% 
+                        unique()
                 
                 #filtering the dataset
-                sciMag.data <- sciMag.data %>% 
+                sciMag.data.filtered <- sciMag.data.filtered %>% 
                         filter(`SJR Quartile` %in% c(input$selected_quartile)) %>%
                         filter(open.access %in% input$selected_access) %>% 
                         filter(region %in% input$selected_region) %>% 
@@ -64,7 +87,7 @@ shinyServer(function(input, output) {
         
 # ------ Table for data view
   
-        # for printing the filtered sciMag.data in the sciMag.dataView tabset 
+        # for printing the filtered sciMag.data.filtered in the sciMag.data.filteredView tabset 
         output$table <- DT::renderDataTable({
                 data<- dataset()
                 datatable(data)

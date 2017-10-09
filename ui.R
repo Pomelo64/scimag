@@ -6,6 +6,77 @@
 #
 
 library(shiny)
+#------ dropdownbuton func
+# https://stackoverflow.com/questions/34530142/drop-down-checkbox-input-in-shiny
+dropdownButton <- function(label = "", status = c("default", "primary", "success", "info", "warning", "danger"), ..., width = NULL) {
+        
+        status <- match.arg(status)
+        # dropdown button content
+        html_ul <- list(
+                class = "dropdown-menu",
+                style = if (!is.null(width)) 
+                        paste0("width: ", validateCssUnit(width), ";"),
+                lapply(X = list(...), FUN = tags$li, style = "margin-left: 10px; margin-right: 10px;")
+        )
+        # dropdown button apparence
+        html_button <- list(
+                class = paste0("btn btn-", status," dropdown-toggle"),
+                type = "button", 
+                `data-toggle` = "dropdown"
+        )
+        html_button <- c(html_button, list(label))
+        html_button <- c(html_button, list(tags$span(class = "caret")))
+        # final result
+        tags$div(
+                class = "dropdown",
+                do.call(tags$button, html_button),
+                do.call(tags$ul, html_ul),
+                tags$script(
+                        "$('.dropdown-menu').click(function(e) {
+                        e.stopPropagation();
+});")
+  )
+        }
+
+#-----------------
+# for data preparation that may be used in selectInput
+# for deploying on shinyapps.io
+#suppressWarnings(sciMag.data <- read_csv(file = "/srv/connect/apps/SciMagOR2016/scimag.csv" ))
+sciMag.data <- read_csv(file = "./data/scimag.csv" )
+sciMag.data$X1 <- NULL
+sciMag.data$Type <- NULL
+
+sciMag.data$Country <- as.factor(sciMag.data$Country)
+sciMag.data$region <- as.factor(sciMag.data$region)
+levels(sciMag.data$region) <- c("United States","Europe","Rest of the World","United Kingdom")
+sciMag.data$open.access <- as.factor(sciMag.data$open.access)
+levels(sciMag.data$open.access) <- c("Conventional","OpenAccess")
+sciMag.data$SJR <- as.numeric(gsub(pattern = ",",replacement = ".", x = sciMag.data$SJR ))
+sciMag.data$`Cites / Doc. (2years)` <- as.numeric(gsub(pattern = ",",replacement = ".", x = sciMag.data$`Cites / Doc. (2years)` ))
+
+# tidy data with categories 
+a<- strsplit(x= sciMag.data$Categories, "; ")
+names(a) <- sciMag.data$Title
+
+df <- data.frame(Title = names(unlist(a)), Categories = matrix(unlist(a), byrow=T),
+                 stringsAsFactors=FALSE)
+df$Title <- gsub(x = df$Title, pattern = "\\d" , replacement = "" )
+df$Categories <- gsub(x = df$Categories, pattern = "\\s\\(.\\d\\)" , replacement = "")
+
+sciMag.data$Categories <- NULL 
+
+sciMag.data<- merge(x = sciMag.data, y = df, by = "Title", all = TRUE)
+
+sciMag.data$Categories <- factor(tidy_scimag$Categories)
+sciMag.data$`SJR Quartile` <- factor(tidy_scimag$`SJR Quartile`)
+
+#print(levels(sciMag.data$Categories))
+
+#selection of default categories for selectInput()
+default_cats<-tidy_scimag %>% filter(Title %in% c("Omega","European Journal of Operations Research", "Operations Research")) %>% select(Categories)
+default_cats <- as.vector(default_cats$Categories)
+print(default_cats)
+#-----------------
 
 shinyUI(
         fluidPage(
@@ -16,6 +87,15 @@ shinyUI(
                         column(2,wellPanel(
                                 helpText("Data Filtering"),
                                 # Checkbox with several selection for filtering the data
+                                dropdownButton(
+                                        label = "Select some Categories", status = "default", width = "100%",
+                                        tags$div(style='overflow-y: scroll; height: 200px;',
+                                                 checkboxGroupInput(inputId = "selected_categories",
+                                                                    label = "Choose",
+                                                                    choices = levels(sciMag.data$Categories),
+                                                                    selected = default_cats))
+                                        
+                                ),
                                 checkboxGroupInput(inputId = "selected_quartile",
                                                    label = "Which SJR Quartile(s)?",
                                                    choiceNames = as.list(c("Q1","Q2","Q3","Q4")), 
@@ -38,6 +118,12 @@ shinyUI(
                                                    choiceValues = as.list(c("SJR","H index","Total Docs. (2016)", "Total Docs. (3years)","Total Refs.","Total Cites (3years)","Citable Docs. (3years)","Cites / Doc. (2years)","Ref. / Doc." )),
                                                    selected = as.list(c("SJR","H index","Total Docs. (2016)", "Total Docs. (3years)","Total Refs.","Total Cites (3years)","Citable Docs. (3years)","Cites / Doc. (2years)","Ref. / Doc." ))
                                                    ),
+                                
+                                
+                                #selectInput(inputId = "category_selection", label = "Category Selection",
+                                #            choices = levels(sciMag.data$Categories) , multiple = TRUE, 
+                                #            selected = default_cats, size = 5, selectize = FALSE),
+                                
                                 actionButton("plot_button","Plot")
                                 
                                 
@@ -65,6 +151,8 @@ shinyUI(
                                         tabPanel("Correlations", 
                                                  plotOutput("correlation_plot", width = "800px",height = "600px")
                                                  ),
+                                        tabPanel("Category-Frequency Plots",
+                                                 "plot would be here"),
                                         tabPanel("Dataset",
                                                  DT::dataTableOutput("table")),
                                         tabPanel("Help",
